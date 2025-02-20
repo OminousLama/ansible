@@ -1,0 +1,5 @@
+users:
+  - username: admin
+    ssh_key: ""
+  - username: admin2
+    ssh_key: ""

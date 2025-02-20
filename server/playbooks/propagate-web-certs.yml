@@ -1,0 +1,14 @@
+---
+- name: Copy files from source to target servers
+  hosts: all
+  gather_facts: no
+  become: yes
+  vars_files:
+    - propagate-web-certs.vars.yml
+  tasks:
+    - name: Copy files from source host to target hosts
+      copy:
+        src: "{{ item }}"
+        dest: "{{ target_destination }}"
+      with_items: "{{ files_to_copy }}"
+      delegate_to: "{{ source_host }}"

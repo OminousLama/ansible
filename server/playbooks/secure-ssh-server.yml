@@ -1,0 +1,56 @@
+---
+- name: Set up secure ssh server
+  hosts: all
+  become: yes
+  vars_files:
+    - secure-ssh-server.vars.yml
+  tasks:
+    - name: Create sshusers group
+      ansible.builtin.group:
+        name: sshusers
+        state: present
+
+    - name: Add admin users
+      ansible.builtin.user:
+        name: "{{ item.username }}"
+        groups:
+          - sudo
+          - sshusers
+        append: yes
+        state: present
+        create_home: yes
+      with_items: "{{ users }}"
+
+    - name: Install SSH public keys for the users
+      ansible.builtin.authorized_key:
+        user: "{{ item.username }}"
+        state: present
+        key: "{{ item.ssh_key }}"
+      with_items: "{{ users }}"
+
+    - name: Secure the sshd configuration
+      ansible.builtin.template:
+        src: ../templates/sshd_config.j2
+        dest: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart SSH service
+
+    - name: Ensure bash is installed
+      package:
+        name: bash
+        state: present
+
+    - name: Change default shell to bash for a user
+      user:
+        name: "{{ item.username }}"
+        shell: /bin/bash
+      with_items: "{{ users }}"
+
+  handlers:
+    - name: Restart SSH service
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+        enabled: yes

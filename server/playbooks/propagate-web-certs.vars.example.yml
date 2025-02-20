@@ -1,0 +1,12 @@
+---
+# Host where the files are sourced from
+source_host: source-server.example.com
+
+# List of files to be copied
+files_to_copy:
+  - /path/to/file1.txt
+  - /path/to/file2.txt
+  - /path/to/file3.txt
+
+# Destination path on the target servers
+target_destination: /desired/path/on/target/
